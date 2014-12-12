@@ -3,13 +3,15 @@ package splunk
 
 import (
 	"crypto/tls"
-	"encoding/json"
 	"encoding/xml"
+	"errors"
 	"fmt"
-	"ioutil"
+	"io/ioutil"
 	"math/rand"
 	"net"
 	"net/http"
+	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -25,6 +27,11 @@ var (
 	// batch size for splunk results
 	MinBatchSize = 100
 	MaxBatchSize = 1000
+)
+
+var (
+	// TODO: make this configurable
+	ConnectionTimeout = 10 * time.Second
 )
 
 //-----------------------------------------------------------------------------
@@ -63,16 +70,16 @@ func NewClient(host, username, password string) (c *Client) {
 	// by default
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		Dial:            TimeoutDialer(timeout, timeout),
+		Dial:            TimeoutDialer(ConnectionTimeout, ConnectionTimeout),
 	}
 
 	return &Client{
-		Host:     host,
-		Username: username,
-		Password: password,
-		Scheme:   "https",
-		App:      "search",
-		Client:   &http.Client{Transport: tr},
+		Host:       host,
+		Username:   username,
+		Password:   password,
+		Scheme:     "https",
+		App:        "search",
+		HttpClient: &http.Client{Transport: tr},
 	}
 }
 
@@ -111,7 +118,7 @@ func (c *Client) do(method, endpoint string, data url.Values) (resp *http.Respon
 
 	req.SetBasicAuth(c.Username, c.Password)
 	logging.Trace(fmt.Sprintf("HTTP REQUEST: %+v", req))
-	resp, err = c.Client.Do(req)
+	resp, err = c.HttpClient.Do(req)
 
 	if err != nil {
 		return nil, err
