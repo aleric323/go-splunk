@@ -263,8 +263,8 @@ type JobMessage struct {
 type Event map[string]string
 
 type SearchResults struct {
-	InitOffset int     `json:"init_offset"`
-	Events     []Event `json:"results"`
+	InitOffset int     `xml:"initOffset" json:"init_offset"`
+	Events     []Event `xml:"results" json:"results"`
 }
 
 // Submit a new search job. Since this endpoint is non-blocking, the expected
