@@ -96,7 +96,7 @@ func (c *Client) Post(endpoint string, data url.Values) (resp *http.Response, er
 // do makes an HTTP request to an API endpoint
 func (c *Client) do(method, endpoint string, data url.Values) (resp *http.Response, err error) {
 	host := c.PickHost()
-	url := fmt.Sprintf("%s://%s/servicesNS/%s/%s/%s", c.Scheme, host,
+	url := fmt.Sprintf("%s://%s/services/%s/%s/%s", c.Scheme, host,
 		c.Username, c.App, endpoint)
 
 	var req *http.Request
