@@ -356,6 +356,24 @@ func (job *SearchJob) Refresh() (err error) {
 	return nil
 }
 
+// Check the summary of the job
+func (job *SearchJob) Summary() (summary string, err error) {
+	resp, err := job.Client.Get(fmt.Sprintf("search/jobs/%s/summary", job.Id))
+
+	if err != nil {
+		return "", err
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(body), nil
+}
+
 // Get the value of a property for a job
 // TODO - this is a dupe of func(entry *AtomFeedEntry) Property()
 func (job *SearchJob) Property(name string) (value string) {
